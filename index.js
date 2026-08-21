@@ -1,9 +1,8 @@
+require("dotenv").config();
 const { Client, GatewayIntentBits } = require("discord.js");
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
-
-const N8N_WEBHOOK_URL =
-  "https://akz.app.n8n.cloud/webhook/discord-game-search";
+const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL;
 
 const client = new Client({
   intents: [
@@ -18,14 +17,12 @@ client.once("ready", () => {
 });
 
 client.on("messageCreate", async (message) => {
-  // Ignore messages sent by bots
   if (message.author.bot) {
     return;
   }
 
   const content = message.content.trim();
 
-  // Only process commands starting with !
   if (!content.startsWith("!")) {
     return;
   }
@@ -45,9 +42,7 @@ client.on("messageCreate", async (message) => {
       })
     });
 
-    console.log(
-      `Sent to n8n: ${response.status}`
-    );
+    console.log(`Sent to n8n: ${response.status}`);
   } catch (error) {
     console.error("Failed to send to n8n:", error);
   }
