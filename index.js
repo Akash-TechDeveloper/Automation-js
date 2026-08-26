@@ -2,7 +2,9 @@ require("dotenv").config();
 const { Client, GatewayIntentBits } = require("discord.js");
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
-const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL;
+
+const GAME_WEBHOOK_URL = process.env.N8N_GAME_WEBHOOK_URL;
+const FINANCE_WEBHOOK_URL = process.env.N8N_FINANCE_WEBHOOK_URL;
 
 const client = new Client({
   intents: [
@@ -29,8 +31,41 @@ client.on("messageCreate", async (message) => {
 
   console.log(`Received: ${content}`);
 
+  // Get command
+  const command = content
+    .slice(1)
+    .trim()
+    .split(/\s+/)[0]
+    .toLowerCase();
+
+  // Finance commands
+  const financeCommands = [
+    "market",
+    "stock",
+    "compare",
+    "beststock",
+    "gold",
+    "usd",
+    "news",
+    "help"
+  ];
+
+  let webhookUrl;
+
+  if (financeCommands.includes(command)) {
+    webhookUrl = FINANCE_WEBHOOK_URL;
+  } else {
+    // Everything else continues to existing game-search workflow
+    webhookUrl = GAME_WEBHOOK_URL;
+  }
+
+  if (!webhookUrl) {
+    console.error(`No webhook configured for command: ${command}`);
+    return;
+  }
+
   try {
-    const response = await fetch(N8N_WEBHOOK_URL, {
+    const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -42,7 +77,10 @@ client.on("messageCreate", async (message) => {
       })
     });
 
-    console.log(`Sent to n8n: ${response.status}`);
+    console.log(
+      `Sent ${content} to ${command} webhook: ${response.status}`
+    );
+
   } catch (error) {
     console.error("Failed to send to n8n:", error);
   }
