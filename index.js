@@ -179,8 +179,18 @@ client.on("messageCreate", async (message) => {
       // Discord server
       guild_id: message.guild?.id || "",
 
-      // Channel / Forum post / Thread
+      // Current Discord channel
       channel_id: message.channel.id,
+
+      // Parent Forum channel ID
+      forum_id: message.channel.isThread()
+        ? (message.channel.parentId || "")
+        : "",
+
+      // Forum post / thread ID
+      thread_id: message.channel.isThread()
+        ? message.channel.id
+        : "",
 
       // Original Discord message
       message_id: message.id
